@@ -66,14 +66,13 @@ test09FraccionMultipliesWithFraccionCorrectly
 
 	self assert: twoTwentyfifth equals: oneFifth * twoFifth! !
 
-!NumeroTest methodsFor: 'tests' stamp: 'JS 5/5/2022 03:41:34'!
+!NumeroTest methodsFor: 'tests' stamp: 'AK 10/2/2022 12:16:00'!
 test10FraccionDividesFraccionCorrectly
 "
     La division de fracciones es:
 	 
 	(a/b) / (c/d) = (a.d) / (b.c)
 "
-
 	self assert: fiveHalfs equals: oneHalf / oneFifth! !
 
 !NumeroTest methodsFor: 'tests' stamp: 'F 9/30/2022 19:16:53'!
@@ -342,6 +341,47 @@ invalidNumberType
 
 	self error: self class invalidNumberTypeErrorDescription! !
 
+
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 12:24:18'!
+dividirleAUnEntero: unTipoDeNumero
+
+	self subclassResponsibility! !
+
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 12:24:29'!
+dividirleAUnaFraccion: unTipoDeNumero
+
+	self subclassResponsibility! !
+
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:27:35'!
+multiplicarleUnEntero: unTipoDeNumero
+
+	self subclassResponsibility! !
+
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:27:59'!
+multiplicarleUnafraccion: unTipoDeNumero
+
+	self subclassResponsibility! !
+
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:19:58'!
+restarleAUnEntero: unTipoDeNumero
+
+	self subclassResponsibility! !
+
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:17:37'!
+restarleAUnaFraccion: unTipoDeNumero
+
+	self subclassResponsibility! !
+
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:26:05'!
+sumarleUnEntero: unTipoDeNumero
+
+	self subclassResponsibility! !
+
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:26:18'!
+sumarleUnaFraccion: unTipoDeNumero
+
+	self subclassResponsibility! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Numero class' category: 'Numeros-Parte2-Ejercicio'!
@@ -365,29 +405,35 @@ Numero subclass: #Entero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:13'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 11:37:17'!
 * aMultiplier 
-	
-	^self class with: value * aMultiplier integerValue
+
+	^ aMultiplier multiplicarleUnEntero: self.
 	! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'F 9/30/2022 18:44:01'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 11:36:59'!
 + anAdder 
+	^ anAdder sumarleUnEntero: self.
+	
 	
 	"""(anAdder  isKindOf:  Entero ) ifTrue: [^self class with: value + anAdder integerValue].
 	(anAdder  isKindOf:  Fraccion ) ifTrue: [^self * anAdder  denominator + anAdder numerator / anAdder denominator].
 	 self invalidNumberType"""
-	^self class with: value + anAdder integerValue! !
+	! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'NR 9/23/2018 23:40:37'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 18:24:53'!
 - aSubtrahend 
+	^ aSubtrahend restarleAUnEntero: self.
 	
-	^ self class with: value - aSubtrahend integerValue.! !
+	"""^ self class with: value - aSubtrahend integerValue."""! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:14'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 17:09:33'!
 / aDivisor 
+
+	^ aDivisor dividirleAUnEntero: self.
 	
-	^Fraccion with: self over: aDivisor! !
+	"""^Fraccion with: (self class with: value) over: aDivisor"""
+	"""^Fraccion with: self over: aDivisor"""! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'HAW 9/24/2018 08:47:50'!
 fibonacci
@@ -461,6 +507,62 @@ greatestCommonDivisorWith: anEntero
 	
 	^self class with: (value gcd: anEntero integerValue)! !
 
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:18:58'!
+dividirleAUnEntero: unTipoDeNumero
+
+	^Fraccion with: unTipoDeNumero over: self.! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:18:52'!
+dividirleAUnaFraccion: unTipoDeNumero
+	
+	^ unTipoDeNumero numerator / (self * unTipoDeNumero denominator ) .! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:59:18'!
+multiplicarleUnEntero: unTipoDeNumero
+
+	"""self es Entero y unTipoDeNumero es Entero"""
+	
+	^self class with: value * unTipoDeNumero integerValue! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:59:42'!
+multiplicarleUnafraccion: unTipoDeNumero
+	
+	"""self es Entero y unTipoDeNumero es Fraccion"""
+	
+	^(self * unTipoDeNumero numerator ) / unTipoDeNumero denominator .! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 20:24:52'!
+restarleAUnEntero: unTipoDeNumero
+
+	""" self es Entero y unTipoDeNumero es Entero"""
+
+	^self class with: (unTipoDeNumero integerValue - value).! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:22:20'!
+restarleAUnaFraccion: unTipoDeNumero
+
+	""" self es Entero y unTipoDeNumero es Fraccion"""
+	
+	^(unTipoDeNumero numerator - (self * unTipoDeNumero  denominator)) / unTipoDeNumero denominator.! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:26:05'!
+sumarleUnEntero: unTipoDeNumero
+	
+	""" self es Entero y unTipoDeNumero es Entero"""
+	^self class with: value + unTipoDeNumero integerValue.
+
+	
+	! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:45:03'!
+sumarleUnaFraccion: unTipoDeNumero
+
+	""" self es Entero y unTipoDeNumero es Fraccion"""
+	
+	^(self * unTipoDeNumero  denominator + unTipoDeNumero numerator) / unTipoDeNumero denominator.
+	! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Entero class' category: 'Numeros-Parte2-Ejercicio'!
@@ -487,38 +589,39 @@ Numero subclass: #Fraccion
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:14'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 11:38:03'!
 * aMultiplier 
-	
-	^(numerator * aMultiplier numerator) / (denominator * aMultiplier denominator)
+	^ aMultiplier multiplicarleUnafraccion: self.
 	! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'F 9/30/2022 18:48:05'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 11:26:18'!
 + anAdder 
-	
+	^ anAdder sumarleUnaFraccion: self.
+
+	"""
 	| newNumerator newDenominator |
-	
 	newNumerator := (numerator * anAdder denominator) + (denominator * anAdder numerator).
 	newDenominator := denominator * anAdder denominator.
-	
 	^newNumerator / newDenominator 
-! !
+	"""! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'NR 9/23/2018 23:43:50'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 18:25:34'!
 - aSubtrahend 
-	
+	^ aSubtrahend restarleAUnaFraccion: self.
+
+	"""
 	| newNumerator newDenominator |
-	
 	newNumerator := (numerator * aSubtrahend denominator) - (denominator * aSubtrahend numerator).
 	newDenominator := denominator * aSubtrahend denominator.
-	
-	^newNumerator / newDenominator 
+	^newNumerator / newDenominator"""
 ! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:14'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 12:24:30'!
 / aDivisor 
+
+	^ aDivisor dividirleAUnaFraccion: self.
 	
-	^(numerator * aDivisor denominator) / (denominator * aDivisor numerator)! !
+	"""^(numerator * aDivisor denominator) / (denominator * aDivisor numerator)"""! !
 
 
 !Fraccion methodsFor: 'comparing' stamp: 'HernanWilkinson 5/7/2016 20:42'!
@@ -577,6 +680,74 @@ printOn: aStream
 		print: numerator;
 		nextPut: $/;
 		print: denominator ! !
+
+
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:19:19'!
+dividirleAUnEntero: unTipoDeNumero
+	
+	"""self es Fraccion y unTipoDeNumero es Entero"""
+
+	^(unTipoDeNumero * denominator ) / numerator.! !
+
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:19:30'!
+dividirleAUnaFraccion: unTipoDeNumero
+	"""self es Fraccion y unTipoDeNumero es Fraccion"""
+	"""(a/b) / (c/d) = (a.d) / (b.c)"""
+	
+	^(unTipoDeNumero numerator * denominator  ) / (unTipoDeNumero denominator * numerator ).
+	! !
+
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:58:51'!
+multiplicarleUnEntero: unTipoDeNumero
+	
+	"""self es Fraccion y unTipoDeNumero es Entero"""
+	
+	^(unTipoDeNumero * numerator ) / denominator .! !
+
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 12:05:19'!
+multiplicarleUnafraccion: unTipoDeNumero
+
+	"""self es Fraccion y unTipoDeNumero es fraccion"""
+	
+	^(numerator * unTipoDeNumero numerator) / (denominator * unTipoDeNumero denominator).! !
+
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:23:58'!
+restarleAUnEntero: unTipoDeNumero
+
+	^((unTipoDeNumero * denominator)- numerator) / denominator.! !
+
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:35:46'!
+restarleAUnaFraccion: unTipoDeNumero
+
+	
+	
+	| newNumerator newDenominator |
+	newNumerator :=  (denominator * unTipoDeNumero numerator)- (numerator * unTipoDeNumero denominator).
+	newDenominator := denominator * unTipoDeNumero denominator.
+	^newNumerator / newDenominator
+
+! !
+
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:43:56'!
+sumarleUnEntero: unTipoDeNumero
+
+	""" self es Fraccion y unTipoDeNumero es Entero"""
+
+	^(unTipoDeNumero * denominator + numerator) / denominator.! !
+
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 12:07:08'!
+sumarleUnaFraccion: unTipoDeNumero
+
+	"""self es Fraccion y unTipoDeNumero es Fraccion"""
+	
+	| newNumerator newDenominator |
+	
+	newNumerator := (numerator * unTipoDeNumero denominator) + (denominator * unTipoDeNumero numerator).
+	
+	newDenominator := denominator * unTipoDeNumero denominator.
+	
+	^newNumerator / newDenominator 
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 

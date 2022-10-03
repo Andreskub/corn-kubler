@@ -342,43 +342,43 @@ invalidNumberType
 	self error: self class invalidNumberTypeErrorDescription! !
 
 
-!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 12:24:18'!
-dividirleAUnEntero: unTipoDeNumero
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:34:00'!
+dividirAUnEntero: dividend 
 
 	self subclassResponsibility! !
 
-!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 12:24:29'!
-dividirleAUnaFraccion: unTipoDeNumero
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:34:09'!
+dividirAUnaFraccion: dividend 
 
 	self subclassResponsibility! !
 
-!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:27:35'!
-multiplicarleUnEntero: unTipoDeNumero
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:31:49'!
+multiplicarAUnEntero: multiplier
 
 	self subclassResponsibility! !
 
-!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:27:59'!
-multiplicarleUnafraccion: unTipoDeNumero
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:31:52'!
+multiplicarAUnaFraccion: multiplier
 
 	self subclassResponsibility! !
 
-!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:19:58'!
-restarleAUnEntero: unTipoDeNumero
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:32:38'!
+restarleAUnEntero: minuend 
 
 	self subclassResponsibility! !
 
-!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:17:37'!
-restarleAUnaFraccion: unTipoDeNumero
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:32:42'!
+restarleAUnaFraccion: minuend
 
 	self subclassResponsibility! !
 
-!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:26:05'!
-sumarleUnEntero: unTipoDeNumero
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:30:16'!
+sumarAUnEntero: augend
 
 	self subclassResponsibility! !
 
-!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:26:18'!
-sumarleUnaFraccion: unTipoDeNumero
+!Numero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:30:27'!
+sumarAUnaFraccion: augend 
 
 	self subclassResponsibility! !
 
@@ -405,15 +405,15 @@ Numero subclass: #Entero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 11:37:17'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:25:26'!
 * aMultiplier 
 
-	^ aMultiplier multiplicarleUnEntero: self.
+	^ aMultiplier multiplicarAUnEntero: self.
 	! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 11:36:59'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:28:47'!
 + anAdder 
-	^ anAdder sumarleUnEntero: self.
+	^ anAdder sumarAUnEntero: self.
 	
 	
 	"""(anAdder  isKindOf:  Entero ) ifTrue: [^self class with: value + anAdder integerValue].
@@ -427,10 +427,10 @@ Numero subclass: #Entero
 	
 	"""^ self class with: value - aSubtrahend integerValue."""! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 17:09:33'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:26:24'!
 / aDivisor 
 
-	^ aDivisor dividirleAUnEntero: self.
+	^ aDivisor dividirAUnEntero: self.
 	
 	"""^Fraccion with: (self class with: value) over: aDivisor"""
 	"""^Fraccion with: self over: aDivisor"""! !
@@ -508,59 +508,64 @@ greatestCommonDivisorWith: anEntero
 	^self class with: (value gcd: anEntero integerValue)! !
 
 
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:18:58'!
-dividirleAUnEntero: unTipoDeNumero
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:35:55'!
+dividirAUnEntero: dividend 
 
-	^Fraccion with: unTipoDeNumero over: self.! !
+	"""self es Entero y dividend es Entero"""
 
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:18:52'!
-dividirleAUnaFraccion: unTipoDeNumero
+	^Fraccion with: dividend  over: self.! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:35:34'!
+dividirAUnaFraccion: dividend 
 	
-	^ unTipoDeNumero numerator / (self * unTipoDeNumero denominator ) .! !
-
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:59:18'!
-multiplicarleUnEntero: unTipoDeNumero
-
-	"""self es Entero y unTipoDeNumero es Entero"""
+	"""self es Entero y dividend es Fraccion"""
 	
-	^self class with: value * unTipoDeNumero integerValue! !
+	^ dividend  numerator / (self * dividend  denominator ) .! !
 
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:59:42'!
-multiplicarleUnafraccion: unTipoDeNumero
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:39:11'!
+multiplicarAUnEntero: multiplier
+
+	"""self es Entero y multiplier es Entero"""
 	
-	"""self es Entero y unTipoDeNumero es Fraccion"""
+	^self class with: (value * multiplier integerValue).! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:36:15'!
+multiplicarAUnaFraccion: multiplier
 	
-	^(self * unTipoDeNumero numerator ) / unTipoDeNumero denominator .! !
-
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 20:24:52'!
-restarleAUnEntero: unTipoDeNumero
-
-	""" self es Entero y unTipoDeNumero es Entero"""
-
-	^self class with: (unTipoDeNumero integerValue - value).! !
-
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:22:20'!
-restarleAUnaFraccion: unTipoDeNumero
-
-	""" self es Entero y unTipoDeNumero es Fraccion"""
+	"""self es Entero y multiplier es Fraccion"""
 	
-	^(unTipoDeNumero numerator - (self * unTipoDeNumero  denominator)) / unTipoDeNumero denominator.! !
+	^(self * multiplier numerator ) / multiplier denominator .! !
 
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:26:05'!
-sumarleUnEntero: unTipoDeNumero
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:36:21'!
+restarleAUnEntero: minuend
+
+	""" self es Entero y minuend es Entero"""
+
+	^self class with: (minuend integerValue - value).! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:36:25'!
+restarleAUnaFraccion: minuend
+
+	""" self es Entero y minuend es Fraccion"""
 	
-	""" self es Entero y unTipoDeNumero es Entero"""
-	^self class with: value + unTipoDeNumero integerValue.
+	^(minuend numerator - (self * minuend  denominator)) / minuend denominator.! !
+
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:38:44'!
+sumarAUnEntero: augend 
+	
+	""" self es Entero y augend es Entero"""
+	
+	^self class with: (augend  integerValue + value).
 
 	
 	! !
 
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:45:03'!
-sumarleUnaFraccion: unTipoDeNumero
+!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:36:37'!
+sumarAUnaFraccion: augend 
 
-	""" self es Entero y unTipoDeNumero es Fraccion"""
+	""" self es Entero y augend es Fraccion"""
 	
-	^(self * unTipoDeNumero  denominator + unTipoDeNumero numerator) / unTipoDeNumero denominator.
+	^(self * augend   denominator + augend  numerator) / augend  denominator.
 	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -589,14 +594,14 @@ Numero subclass: #Fraccion
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 11:38:03'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:25:48'!
 * aMultiplier 
-	^ aMultiplier multiplicarleUnafraccion: self.
+	^ aMultiplier multiplicarAUnaFraccion: self.
 	! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 11:26:18'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:29:00'!
 + anAdder 
-	^ anAdder sumarleUnaFraccion: self.
+	^ anAdder sumarAUnaFraccion: self.
 
 	"""
 	| newNumerator newDenominator |
@@ -616,10 +621,10 @@ Numero subclass: #Fraccion
 	^newNumerator / newDenominator"""
 ! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 12:24:30'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:26:55'!
 / aDivisor 
 
-	^ aDivisor dividirleAUnaFraccion: self.
+	^ aDivisor dividirAUnaFraccion: self.
 	
 	"""^(numerator * aDivisor denominator) / (denominator * aDivisor numerator)"""! !
 
@@ -682,69 +687,71 @@ printOn: aStream
 		print: denominator ! !
 
 
-!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:19:19'!
-dividirleAUnEntero: unTipoDeNumero
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:36:51'!
+dividirAUnEntero: dividend 
 	
-	"""self es Fraccion y unTipoDeNumero es Entero"""
+	"""self es Fraccion y dividend es Entero"""
 
-	^(unTipoDeNumero * denominator ) / numerator.! !
+	^(dividend  * denominator ) / numerator.! !
 
-!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:19:30'!
-dividirleAUnaFraccion: unTipoDeNumero
-	"""self es Fraccion y unTipoDeNumero es Fraccion"""
-	"""(a/b) / (c/d) = (a.d) / (b.c)"""
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:37:04'!
+dividirAUnaFraccion: dividend 
 	
-	^(unTipoDeNumero numerator * denominator  ) / (unTipoDeNumero denominator * numerator ).
+	"""self es Fraccion y dividend es Fraccion"""
+	
+	^(dividend  numerator * denominator  ) / (dividend  denominator * numerator ).
 	! !
 
-!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:58:51'!
-multiplicarleUnEntero: unTipoDeNumero
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:37:09'!
+multiplicarAUnEntero: multiplier
 	
-	"""self es Fraccion y unTipoDeNumero es Entero"""
+	"""self es Fraccion y multiplier es Entero"""
 	
-	^(unTipoDeNumero * numerator ) / denominator .! !
+	^(multiplier * numerator ) / denominator .! !
 
-!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 12:05:19'!
-multiplicarleUnafraccion: unTipoDeNumero
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:37:30'!
+multiplicarAUnaFraccion: multiplier
 
-	"""self es Fraccion y unTipoDeNumero es fraccion"""
+	"""self es Fraccion y multiplier es Fraccion"""
 	
-	^(numerator * unTipoDeNumero numerator) / (denominator * unTipoDeNumero denominator).! !
+	^(numerator * multiplier numerator) / (denominator * multiplier denominator).! !
 
-!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:23:58'!
-restarleAUnEntero: unTipoDeNumero
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:37:48'!
+restarleAUnEntero: minuend
 
-	^((unTipoDeNumero * denominator)- numerator) / denominator.! !
+	"""self es Fraccion y minuend es Entero"""
 
-!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 18:35:46'!
-restarleAUnaFraccion: unTipoDeNumero
+	^((minuend * denominator)- numerator) / denominator.! !
 
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:38:05'!
+restarleAUnaFraccion: minuend
 	
+	"""self es Fraccion y minuend es Fraccion"""
 	
 	| newNumerator newDenominator |
-	newNumerator :=  (denominator * unTipoDeNumero numerator)- (numerator * unTipoDeNumero denominator).
-	newDenominator := denominator * unTipoDeNumero denominator.
+	newNumerator :=  (denominator * minuend numerator)- (numerator * minuend denominator).
+	newDenominator := denominator * minuend denominator.
 	^newNumerator / newDenominator
 
 ! !
 
-!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 11:43:56'!
-sumarleUnEntero: unTipoDeNumero
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:38:10'!
+sumarAUnEntero: augend 
 
-	""" self es Fraccion y unTipoDeNumero es Entero"""
+	""" self es Fraccion y augend es Entero"""
 
-	^(unTipoDeNumero * denominator + numerator) / denominator.! !
+	^(augend  * denominator + numerator) / denominator.! !
 
-!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 12:07:08'!
-sumarleUnaFraccion: unTipoDeNumero
+!Fraccion methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:38:15'!
+sumarAUnaFraccion: augend 
 
-	"""self es Fraccion y unTipoDeNumero es Fraccion"""
+	"""self es Fraccion y augend es Fraccion"""
 	
 	| newNumerator newDenominator |
 	
-	newNumerator := (numerator * unTipoDeNumero denominator) + (denominator * unTipoDeNumero numerator).
+	newNumerator := (numerator * augend  denominator) + (denominator * augend  numerator).
 	
-	newDenominator := denominator * unTipoDeNumero denominator.
+	newDenominator := denominator * augend  denominator.
 	
 	^newNumerator / newDenominator 
 	! !

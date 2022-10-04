@@ -411,42 +411,31 @@ Numero subclass: #Entero
 	^ aMultiplier multiplicarAUnEntero: self.
 	! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:28:47'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'F 10/4/2022 00:21:42'!
 + anAdder 
 	^ anAdder sumarAUnEntero: self.
 	
 	
-	"""(anAdder  isKindOf:  Entero ) ifTrue: [^self class with: value + anAdder integerValue].
-	(anAdder  isKindOf:  Fraccion ) ifTrue: [^self * anAdder  denominator + anAdder numerator / anAdder denominator].
-	 self invalidNumberType"""
-	! !
+! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 18:24:53'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'F 10/4/2022 00:22:01'!
 - aSubtrahend 
 	^ aSubtrahend restarleAUnEntero: self.
 	
-	"""^ self class with: value - aSubtrahend integerValue."""! !
+! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:26:24'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'F 10/4/2022 00:22:09'!
 / aDivisor 
 
 	^ aDivisor dividirAUnEntero: self.
 	
-	"""^Fraccion with: (self class with: value) over: aDivisor"""
-	"""^Fraccion with: self over: aDivisor"""! !
+! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HAW 9/24/2018 08:47:50'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'F 10/3/2022 22:01:41'!
 fibonacci
+	^self subclassResponsibility. 
+	
 
-	| one two |
-	
-	one := Entero with: 1.
-	two := Entero with: 2.
-	
-	self isNegative ifTrue: [self error: Entero negativeFibonacciErrorDescription ].	
-	(self isZero or: [self isOne]) ifTrue: [^one].
-	
-	^ (self - one) fibonacci + (self - two) fibonacci
 		! !
 
 
@@ -461,10 +450,14 @@ hash
 	^value hash! !
 
 
-!Entero methodsFor: 'initialization' stamp: 'JS 5/5/2022 03:55:37'!
+!Entero methodsFor: 'initialization' stamp: 'F 10/3/2022 21:52:49'!
 initializeWith: aValue 
-	
-	value := aValue! !
+
+
+	value := aValue.
+
+		
+! !
 
 
 !Entero methodsFor: 'accessing' stamp: 'HernanWilkinson 5/7/2016 21:02'!
@@ -497,15 +490,15 @@ isZero
 	^value = 0! !
 
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:55'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'F 10/3/2022 23:45:10'!
 // aDivisor 
 	
-	^self class with: value // aDivisor integerValue! !
+	^self class superclass with: value // aDivisor integerValue! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:00'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'F 10/3/2022 23:44:53'!
 greatestCommonDivisorWith: anEntero 
 	
-	^self class with: (value gcd: anEntero integerValue)! !
+	^self class superclass with: (value gcd: anEntero integerValue)! !
 
 
 !Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:35:55'!
@@ -522,12 +515,12 @@ dividirAUnaFraccion: dividend
 	
 	^ dividend  numerator / (self * dividend  denominator ) .! !
 
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:39:11'!
+!Entero methodsFor: 'arithmetic helpers' stamp: 'F 10/3/2022 23:43:29'!
 multiplicarAUnEntero: multiplier
 
 	"""self es Entero y multiplier es Entero"""
 	
-	^self class with: (value * multiplier integerValue).! !
+	^self class superclass with: (value * multiplier integerValue).! !
 
 !Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:36:15'!
 multiplicarAUnaFraccion: multiplier
@@ -536,12 +529,12 @@ multiplicarAUnaFraccion: multiplier
 	
 	^(self * multiplier numerator ) / multiplier denominator .! !
 
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:36:21'!
+!Entero methodsFor: 'arithmetic helpers' stamp: 'F 10/3/2022 23:43:51'!
 restarleAUnEntero: minuend
 
 	""" self es Entero y minuend es Entero"""
 
-	^self class with: (minuend integerValue - value).! !
+	^self class superclass with: (minuend integerValue - value).! !
 
 !Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:36:25'!
 restarleAUnaFraccion: minuend
@@ -550,12 +543,12 @@ restarleAUnaFraccion: minuend
 	
 	^(minuend numerator - (self * minuend  denominator)) / minuend denominator.! !
 
-!Entero methodsFor: 'arithmetic helpers' stamp: 'AK 10/2/2022 22:38:44'!
+!Entero methodsFor: 'arithmetic helpers' stamp: 'F 10/3/2022 23:42:13'!
 sumarAUnEntero: augend 
 	
 	""" self es Entero y augend es Entero"""
 	
-	^self class with: (augend  integerValue + value).
+	^self class superclass with: (augend  integerValue + value).
 
 	
 	! !
@@ -578,13 +571,92 @@ Entero class
 negativeFibonacciErrorDescription
 	^ ' Fibonacci no está definido aquí para Enteros Negativos'! !
 
-!Entero class methodsFor: 'instance creation' stamp: 'JS 5/5/2022 03:55:37'!
+!Entero class methodsFor: 'instance creation' stamp: 'F 10/3/2022 23:30:00'!
 with: aValue 
-	
+
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
+
 	
-	^self new initializeWith: aValue! !
+	^(self subclasses detect: [:subclass | subclass correspondeASubclase: aValue])new initializeWith: aValue ! !
+
+
+!classDefinition: #CeroOUno category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #CeroOUno
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!CeroOUno methodsFor: 'arithmetic operations' stamp: 'F 10/3/2022 22:02:08'!
+fibonacci
+	^Entero with: 1.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'CeroOUno class' category: 'Numeros-Parte2-Ejercicio'!
+CeroOUno class
+	instanceVariableNames: ''!
+
+!CeroOUno class methodsFor: 'instance creation' stamp: 'F 10/3/2022 22:59:08'!
+correspondeASubclase: aValue
+	^((aValue=0)|(aValue=1)).
+	! !
+
+
+!classDefinition: #MayorAUno category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #MayorAUno
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!MayorAUno methodsFor: 'arithmetic operations' stamp: 'F 10/3/2022 22:04:43'!
+fibonacci
+	|one two|
+	one:= Entero with: 1.
+	two:= Entero with: 2.
+	
+	^(self- one) fibonacci + (self- two) fibonacci.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MayorAUno class' category: 'Numeros-Parte2-Ejercicio'!
+MayorAUno class
+	instanceVariableNames: ''!
+
+!MayorAUno class methodsFor: 'instance creation' stamp: 'F 10/3/2022 21:59:06'!
+correspondeASubclase: aValue
+	^aValue > 1.
+	! !
+
+
+!classDefinition: #Negativo category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #Negativo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!Negativo methodsFor: 'arithmetic operations' stamp: 'F 10/3/2022 22:01:20'!
+fibonacci
+	^self error: Entero negativeFibonacciErrorDescription .! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Negativo class' category: 'Numeros-Parte2-Ejercicio'!
+Negativo class
+	instanceVariableNames: ''!
+
+!Negativo class methodsFor: 'instance creation' stamp: 'F 10/3/2022 22:36:50'!
+correspondeASubclase: aValue
+	^aValue negative.
+	! !
+
+!Negativo class methodsFor: 'instance creation' stamp: 'F 10/3/2022 23:46:07'!
+with: aValue
+	^Negativo new initializeWith: aValue.
+	! !
 
 
 !classDefinition: #Fraccion category: 'Numeros-Parte2-Ejercicio'!
@@ -599,34 +671,24 @@ Numero subclass: #Fraccion
 	^ aMultiplier multiplicarAUnaFraccion: self.
 	! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:29:00'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'F 10/4/2022 00:22:29'!
 + anAdder 
 	^ anAdder sumarAUnaFraccion: self.
 
-	"""
-	| newNumerator newDenominator |
-	newNumerator := (numerator * anAdder denominator) + (denominator * anAdder numerator).
-	newDenominator := denominator * anAdder denominator.
-	^newNumerator / newDenominator 
-	"""! !
+! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 18:25:34'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'F 10/4/2022 00:22:35'!
 - aSubtrahend 
 	^ aSubtrahend restarleAUnaFraccion: self.
 
-	"""
-	| newNumerator newDenominator |
-	newNumerator := (numerator * aSubtrahend denominator) - (denominator * aSubtrahend numerator).
-	newDenominator := denominator * aSubtrahend denominator.
-	^newNumerator / newDenominator"""
 ! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'AK 10/2/2022 22:26:55'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'F 10/4/2022 00:22:41'!
 / aDivisor 
 
 	^ aDivisor dividirAUnaFraccion: self.
 	
-	"""^(numerator * aDivisor denominator) / (denominator * aDivisor numerator)"""! !
+! !
 
 
 !Fraccion methodsFor: 'comparing' stamp: 'HernanWilkinson 5/7/2016 20:42'!

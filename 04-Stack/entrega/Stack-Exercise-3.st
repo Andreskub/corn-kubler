@@ -137,71 +137,91 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'stackWinter winterSentences'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 00:41:09'!
-test01OnePrefixIsFoundInStack
-
-	| stack1 finder finderOccurrencies|
-	stack1 := OOStack new.
-	stack1 push: 	'winter is coming'.
-	stack1 push: 'winning is everything'.
-	stack1 push: 'The winds of Winter'. 
-	stack1 push: 'Winter is here'.
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:27:56'!
+setUp
 	
-	finder := SentenceFinderByPrefix with: stack1.
-	finderOccurrencies := finder find: 'Wint'.
-	self assert: (finderOccurrencies at:1) equals: 'Winter is here'.
-	self assert: (finderOccurrencies size) equals: 1.! !
-
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 00:41:32'!
-test02PrefixCanNotBeEmpty
-	| stack1 finder|
+	stackWinter := OOStack new.
 	
-	stack1 := OOStack new.
+	winterSentences := {'winter is coming'.'winning is everything'.'The winds of Winter'.'Winter is here'.}.
+	
+	winterSentences do: [:sentence | stackWinter push: sentence ].
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:19:50'!
+test01PrefixCanNotBeEmpty
+
+	| emptyStack finder|
+	
+	emptyStack := OOStack new.
 		
-	finder := SentenceFinderByPrefix with: stack1.
+	finder := SentenceFinderByPrefix with: emptyStack.
 	
 	self should: [finder find: ''] raise: Error description: SentenceFinderByPrefix prefixEmptyErrorDescription.
 	! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 00:41:47'!
-test03prefixCanNotContainEmptySpaces
-	| stack1 finder|
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:19:43'!
+test02prefixCanNotContainEmptySpaces
 	
-	stack1 := OOStack new.
-	stack1 push: 	'winter is coming'.
+	| finder|
 		
-	finder := SentenceFinderByPrefix with: stack1.
+	finder := SentenceFinderByPrefix with: stackWinter .
 	
 	self should: [finder find: 'win ter'] raise: Error description: SentenceFinderByPrefix prefixShouldNotHaveEmptySpacesErrorDescription .! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 00:52:01'!
-test04PrefixDoesNotExistInStack
-	| stack1 finder finderOccurrencies|
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:19:37'!
+test03OnePrefixIsFoundInStack
+
+	| finder finderOccurrencies |
 	
-	stack1 := OOStack new.
-	stack1 push: 	'winter is coming'.
+	finder := SentenceFinderByPrefix with: stackWinter.
+	
+	finderOccurrencies := finder find: 'Wint'.
+	
+	self assert: (finderOccurrencies at: 1) equals: 'Winter is here'.
+	self assert: (finderOccurrencies size) equals: 1.! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:06:56'!
+test04PrefixDoesNotExistsInStack
+
+	| finder finderOccurrencies |
 		
-	finder := SentenceFinderByPrefix with: stack1.
-	finderOccurrencies := finder find:'hola'.
+	finder := SentenceFinderByPrefix with: stackWinter .
+	
+	finderOccurrencies := finder find: 'hola'.
+	 
+	self assert: finderOccurrencies isEmpty .
 	self assert: (finderOccurrencies size) equals: 0.! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 00:54:36'!
-test05PrefixHasThreeOccurrenciesInStack
-	| stack1 finder finderOccurrencies|
-	stack1 := OOStack new.
-	stack1 push: 	'winter is coming'.
-	stack1 push: 'winning is everything'.
-	stack1 push: 'winds of Winter'. 
-	stack1 push: 'Winter is here'.
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:03:33'!
+test05PrefixHasTwoOccurrenciesInStack
+
+	| finder finderOccurrencies|
 	
-	finder := SentenceFinderByPrefix with: stack1.
+	finder := SentenceFinderByPrefix with: stackWinter .
+	
 	finderOccurrencies := finder find: 'wi'.
-	self assert: (finderOccurrencies size) equals: 3.! !
+	
+	self assert: (finderOccurrencies size) equals: 2.! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:49:50'!
+test06PoppedStackRemainsTheSameAsOriginal
+	
+	| finder actualElement |
+	
+	finder := SentenceFinderByPrefix with: stackWinter .
+	finder find: 'wi'.
+	
+	self assert: winterSentences size equals: stackWinter size.
+
+	winterSentences reversed do: [ :sentence |
+		actualElement := stackWinter pop.
+		self assert: sentence equals: actualElement .
+		].! !
 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
@@ -243,9 +263,8 @@ isEmpty
 	^ top isEmpty .! !
 
 
-!OOStack methodsFor: 'initialization' stamp: 'AK 10/12/2022 21:59:55'!
+!OOStack methodsFor: 'initialization' stamp: 'Ak 10/14/2022 13:03:49'!
 initialize
-	"We create a new Base"
 	top := Top with: nil andNextElement: nil.
 	size := 0.! !
 
@@ -254,9 +273,8 @@ initialize
 size
 	^ size.! !
 
-!OOStack methodsFor: 'properties' stamp: 'AK 10/12/2022 22:02:14'!
-top	
-	
+!OOStack methodsFor: 'properties' stamp: 'Ak 10/14/2022 13:04:05'!
+top
 	
 	^top getElementValue .! !
 
@@ -287,44 +305,57 @@ withStack: aStack
 	! !
 
 
-!SentenceFinderByPrefix methodsFor: 'private' stamp: 'F 10/14/2022 00:06:16'!
+!SentenceFinderByPrefix methodsFor: 'private' stamp: 'Ak 10/14/2022 13:05:02'!
 findAllPrefixOccurrencies: aPrefix
-	|occurrencies stackAux |
+
+	| occurrencies stackAux |
+	
 	occurrencies := OrderedCollection new.
+	
 	stackAux := OOStack new.
-	self invertStack: stack into:  stackAux AndForElementsDo: [:element | 
+	
+	self invertStack: stack into: stackAux AndForElementsDo: [:element | 
 		(element beginsWith: aPrefix) ifTrue:[occurrencies add: element]. 
 		].
-	self invertStack: stackAux into: stack AndForElementsDo: [: element|].
-	^occurrencies .
+	
+	self invertStack: stackAux into: stack AndForElementsDo: [: element | ].
+	
+	^ occurrencies .
 	
 	
 	! !
 
-!SentenceFinderByPrefix methodsFor: 'private' stamp: 'F 10/14/2022 00:01:01'!
+!SentenceFinderByPrefix methodsFor: 'private' stamp: 'Ak 10/14/2022 13:05:23'!
 invertStack: aStack into: anotherStack AndForElementsDo: aClosure
-	|actualElement|
+
+	| actualElement |
+	
 	[aStack isEmpty not] whileTrue: [
 		actualElement := aStack pop.
 		aClosure value: actualElement .
 		anotherStack push: actualElement .
 		].
-	^anotherStack. ! !
+	
+	^ anotherStack. ! !
 
-!SentenceFinderByPrefix methodsFor: 'private' stamp: 'F 10/14/2022 00:46:35'!
+!SentenceFinderByPrefix methodsFor: 'private' stamp: 'Ak 10/14/2022 13:05:51'!
 validatePrefix: aPrefix
-	aPrefix isEmpty  ifTrue:[^self error: self class prefixEmptyErrorDescription].
-	((aPrefix findString: ' ') ~= 0) ifTrue:[^self error: self class prefixShouldNotHaveEmptySpacesErrorDescription].
+
+	aPrefix isEmpty ifTrue: [^self error: self class prefixEmptyErrorDescription].
+	
+	((aPrefix findString: ' ') ~= 0) ifTrue: [^self error: self class prefixShouldNotHaveEmptySpacesErrorDescription].
 	
 	
 	
 	! !
 
 
-!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'F 10/14/2022 00:14:48'!
+!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'Ak 10/14/2022 13:04:21'!
 find: aPrefix
+
 	self validatePrefix: aPrefix.
-	^self findAllPrefixOccurrencies: aPrefix
+	
+	^ self findAllPrefixOccurrencies: aPrefix
 	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -333,18 +364,21 @@ find: aPrefix
 SentenceFinderByPrefix class
 	instanceVariableNames: ''!
 
-!SentenceFinderByPrefix class methodsFor: 'instance creation' stamp: 'F 10/13/2022 23:08:06'!
+!SentenceFinderByPrefix class methodsFor: 'instance creation' stamp: 'Ak 10/14/2022 13:06:20'!
 with: aStack
+
 	^ self new withStack: aStack .! !
 
 
-!SentenceFinderByPrefix class methodsFor: 'error descriptions' stamp: 'F 10/13/2022 23:19:56'!
+!SentenceFinderByPrefix class methodsFor: 'error descriptions' stamp: 'Ak 10/14/2022 13:06:15'!
 prefixEmptyErrorDescription
-	^'Prefix is empty'! !
+	
+	^ 'Prefix is empty'.! !
 
-!SentenceFinderByPrefix class methodsFor: 'error descriptions' stamp: 'F 10/13/2022 23:34:42'!
+!SentenceFinderByPrefix class methodsFor: 'error descriptions' stamp: 'Ak 10/14/2022 13:06:12'!
 prefixShouldNotHaveEmptySpacesErrorDescription
-	^'Prefix should not have empty spaces'! !
+
+	^ 'Prefix should not have empty spaces'.! !
 
 
 !classDefinition: #Top category: 'Stack-Exercise'!
@@ -391,11 +425,11 @@ push: anElement
 Top class
 	instanceVariableNames: ''!
 
-!Top class methodsFor: 'instance creation' stamp: 'AK 10/12/2022 20:18:44'!
+!Top class methodsFor: 'instance creation' stamp: 'Ak 10/14/2022 13:06:34'!
 with: anElement andNextElement: nextElement
 
 	
-	^(self subclasses detect: [:subclass | subclass isSubclass: anElement])new initializeWith: anElement andNextElement: nextElement.! !
+	^(self subclasses detect: [:subclass | subclass isSubclass: anElement]) new initializeWith: anElement andNextElement: nextElement.! !
 
 
 !Top class methodsFor: 'testing' stamp: 'AK 10/12/2022 19:26:50'!

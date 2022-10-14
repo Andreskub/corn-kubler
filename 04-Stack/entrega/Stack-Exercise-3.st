@@ -137,12 +137,12 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
-	instanceVariableNames: 'stackWinter winterSentences'
+	instanceVariableNames: 'stackWinter winterSentences auxCollection'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:27:56'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 14:53:16'!
 setUp
 	
 	stackWinter := OOStack new.
@@ -150,7 +150,7 @@ setUp
 	winterSentences := {'winter is coming'.'winning is everything'.'The winds of Winter'.'Winter is here'.}.
 	
 	winterSentences do: [:sentence | stackWinter push: sentence ].
-	! !
+	auxCollection := OrderedCollection new.! !
 
 !SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:19:50'!
 test01PrefixCanNotBeEmpty
@@ -173,7 +173,7 @@ test02prefixCanNotContainEmptySpaces
 	
 	self should: [finder find: 'win ter'] raise: Error description: SentenceFinderByPrefix prefixShouldNotHaveEmptySpacesErrorDescription .! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:19:37'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 15:11:49'!
 test03OnePrefixIsFoundInStack
 
 	| finder finderOccurrencies |
@@ -182,7 +182,6 @@ test03OnePrefixIsFoundInStack
 	
 	finderOccurrencies := finder find: 'Wint'.
 	
-	self assert: (finderOccurrencies at: 1) equals: 'Winter is here'.
 	self assert: (finderOccurrencies size) equals: 1.! !
 
 !SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'Ak 10/14/2022 13:06:56'!
@@ -222,6 +221,48 @@ test06PoppedStackRemainsTheSameAsOriginal
 		actualElement := stackWinter pop.
 		self assert: sentence equals: actualElement .
 		].! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 14:55:06'!
+test07SentenceFinderReturnsTheSentenceThatHasThePrefix
+	| finder finderOccurrencies|
+	
+	finder := SentenceFinderByPrefix with: stackWinter .
+	finderOccurrencies := finder find: 'Wint'.
+	
+	auxCollection add: 'Winter is here'.
+	
+	self assert: finderOccurrencies equals: auxCollection.! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 14:58:53'!
+test08SentenceFinderReturnsACollectionWithTheMultipleSentencesThatHaveThePrefix
+	| finder finderOccurrencies|
+	
+	finder := SentenceFinderByPrefix with: stackWinter .
+	finderOccurrencies := finder find: 'win'.
+	
+	auxCollection add: 'winning is everything'.
+	auxCollection add: 'winter is coming'.
+	
+	self assert: finderOccurrencies equals: auxCollection.	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 15:03:12'!
+test09SentenceFinderReturnsAnEmptyCollectionWhenThePrefixIsNotInTheBeginingOfAnySentence
+	| finder finderOccurrencies|
+	
+	finder := SentenceFinderByPrefix with: stackWinter .
+	finderOccurrencies := finder find: 'co'.
+
+	self assert: finderOccurrencies equals: auxCollection.	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'F 10/14/2022 15:08:34'!
+test10SentenceFinderWithEmptyStackReturnsEmptyCollection
+	|emptyStack finder finderOccurrencies|
+	
+	emptyStack := OOStack new.
+	finder := SentenceFinderByPrefix with: emptyStack.
+	finderOccurrencies := finder find: 'Wint'.
+	
+	self assert: finderOccurrencies equals: auxCollection.! !
 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!

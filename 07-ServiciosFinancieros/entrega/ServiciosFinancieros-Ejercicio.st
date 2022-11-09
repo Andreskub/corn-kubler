@@ -1,155 +1,159 @@
-!classDefinition: #AccountTest category: 'ServiciosFinancieros-Ejercicio'!
-TestCase subclass: #AccountTest
-	instanceVariableNames: 'accountA accountB accountC'
+!classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #PortfolioTest
+	instanceVariableNames: 'portfolioA'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!AccountTest methodsFor: 'tests' stamp: 'F 11/7/2022 19:10:57'!
-test01AccountHaveZeroAsBalanceWhenCreated 
-
-	self assert: 0 equals: accountA balance
-! !
-
-!AccountTest methodsFor: 'tests' stamp: 'F 11/7/2022 19:10:42'!
-test02DepositIncreasesBalanceOnTransactionValue 
-
-
-	Deposit registerAmount:  100 * peso  withOriginator: accountA andBeneficiary: accountB .
-		
-	self assert: 100 * peso equals: accountB balance
-! !
-
-!AccountTest methodsFor: 'tests' stamp: 'F 11/7/2022 19:29:55'!
-test03WithdrawDecreasesBalanceOnTransactionValue 
-
-
-	Deposit registerAmount: 100 * peso  withOriginator: accountA andBeneficiary: accountB.
-	Withdraw registerAmount: 50 * peso withOriginator: accountA andBeneficiary: accountB.
-		
-	self assert: 50 * peso equals: accountB balance
-! !
-
-!AccountTest methodsFor: 'tests' stamp: 'F 11/7/2022 19:32:34'!
-test04WithdrawValueMustBePositive 
-
-	| withdrawValue |
-	
-	withdrawValue := 50 * peso.
-	
-	self assert: withdrawValue equals: (Withdraw registerAmount: withdrawValue withOriginator: accountA andBeneficiary: accountB) value.
-! !
-
-!AccountTest methodsFor: 'tests' stamp: 'F 11/7/2022 19:33:53'!
-test05AccountKnowsRegisteredTransactions 
-
-	| deposit withdraw |
-	
-	deposit := Deposit registerAmount: 100 * peso  withOriginator: accountA andBeneficiary: accountB.
-	withdraw := Withdraw registerAmount: 50 * peso withOriginator: accountA andBeneficiary: accountB.
-
-	self assert: (accountB hasRegistered: deposit).
-	self assert: (accountB hasRegistered: withdraw).
-! !
-
-!AccountTest methodsFor: 'tests' stamp: 'F 11/7/2022 19:42:53'!
-test06AccountDoNotKnowNotRegisteredTransactions
-
-	| deposit withdraw |
-	
-	deposit :=  Deposit register: 100*peso fromOriginator: accountA toBeneficiary: accountB.
-	withdraw := Withdraw register: 50*peso fromOriginator: accountA toBeneficiary: accountB .
-		
-	self deny: (accountB hasRegistered: deposit).
-	self deny: (accountB hasRegistered: withdraw).
-! !
-
-!AccountTest methodsFor: 'tests' stamp: 'F 11/7/2022 19:43:58'!
-test07AccountKnowsItsTransactions 
-
-	| deposit |
-	
-	deposit := Deposit registerAmount: 50 * peso  withOriginator: accountA andBeneficiary: accountB.
-		
-	self assert: 1 equals: accountB transactions size.
-	self assert: (accountB transactions includes: deposit).
-! !
-
-
-!AccountTest methodsFor: 'setup' stamp: 'F 11/7/2022 19:40:31'!
+!PortfolioTest methodsFor: 'setUp' stamp: 'AK 11/8/2022 21:24:58'!
 setUp
+	| accountA accountB |
 	
+	accountA := ReceptiveAccount new.
+	accountB := ReceptiveAccount new.
+	
+	Withdraw register: 100*peso on: accountA.
+	Deposit register: 50*peso on: accountB .
+	
+	portfolioA := Portfolio new.
+	portfolioA register: accountA.
+	
+	
+	
+	
+	! !
 
-	accountA := Account new.
-	accountB := Account new.
-	accountC := Account new
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/8/2022 21:20:52'!
+test01InitializeNewPortfolioHasZeroTransactions
+
+	| emptyPortfolio |
+	
+	emptyPortfolio := Portfolio new.
+	
+	self assert: emptyPortfolio isEmpty .
 
 	! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/8/2022 21:21:09'!
+test02RegisterAnAccountInPortfolioIsNotEmpty
+
+	self deny: portfolioA isEmpty.
+	
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/8/2022 21:36:17'!
+test03PortfolioHasTheSameBalanceAsItsOnlyAccountRegistered
+
+	self assert: portfolioA balance equals: -100*peso.! !
+
 
-!classDefinition: #Account category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #Account
-	instanceVariableNames: 'transactions balance'
+!classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #ReceptiveAccountTest
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Account methodsFor: 'initialization' stamp: 'F 11/7/2022 18:37:53'!
-initialize
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:10:43'!
+test01ReceptiveAccountHaveZeroAsBalanceWhenCreated 
 
-	transactions := OrderedCollection new.
-	balance := 0*peso.! !
-
-
-!Account methodsFor: 'main protocol' stamp: 'F 11/7/2022 18:43:04'!
-balance
-
-	^ balance.
-
-! !
-
-!Account methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
-hasRegistered: aTransaction
-
-	^ transactions includes: aTransaction 
-! !
-
-!Account methodsFor: 'main protocol' stamp: 'F 11/7/2022 18:40:54'!
-register: aTransaction
+	| account |
 	
-	balance :=aTransaction registerInBalance: balance.
-	transactions add: aTransaction 
-	
+	account := ReceptiveAccount new.
+
+	self assert: 0 equals: account balance
 ! !
 
-!Account methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
-transactions 
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:14:20'!
+test02DepositIncreasesBalanceOnTransactionValue 
 
-	^ transactions copy! !
+	| account |
+	
+	account := ReceptiveAccount  new.
+	Deposit register: 100 * peso on: account.
+		
+	self assert: 100 * peso equals: account balance
+! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:14:24'!
+test03WithdrawDecreasesBalanceOnTransactionValue 
+
+	| account |
+	
+	account := ReceptiveAccount new.
+	Deposit register: 100 * peso on: account.
+	Withdraw register: 50 * peso on: account.
+		
+	self assert: 50 * peso equals: account balance
+! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:10:14'!
+test04WithdrawValueMustBePositive 
+
+	| account withdrawValue |
+	
+	account := ReceptiveAccount new.
+	withdrawValue := 50 * peso.
+	
+	self assert: withdrawValue equals: (Withdraw register: withdrawValue on: account) value
+! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:10:22'!
+test05ReceptiveAccountKnowsRegisteredTransactions 
+
+	| account deposit withdraw |
+	
+	account := ReceptiveAccount new.
+	deposit := Deposit register: 100 * peso on: account.
+	withdraw := Withdraw register: 50 * peso on: account.
+		
+	self assert: (account hasRegistered: deposit).
+	self assert: (account hasRegistered: withdraw).
+! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:12:14'!
+test06ReceptiveAccountDoNotKnowNotRegisteredTransactions
+
+	| account deposit withdraw |
+	
+	account := ReceptiveAccount new.
+	deposit :=  Deposit for: 100 * peso.
+	withdraw := Withdraw for: 50 * peso.
+		
+	self deny: (account hasRegistered: deposit).
+	self deny: (account hasRegistered: withdraw).
+! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:12:23'!
+test07AccountKnowsItsTransactions 
+
+	| account deposit |
+	
+	account := ReceptiveAccount new.
+	
+	deposit := Deposit register: 50 * peso on: account.
+		
+	self assert: 1 equals: account transactions size.
+	self assert: (account transactions includes: deposit).
+! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
-	instanceVariableNames: 'originator beneficiary'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!AccountTransaction methodsFor: 'operations' stamp: 'F 11/7/2022 18:41:14'!
+!AccountTransaction methodsFor: 'value' stamp: 'AK 11/8/2022 21:10:15'!
 registerInBalance: aBalance
-	^self subclassResponsibility ! !
-
+	^ self subclassResponsibility .! !
 
 !AccountTransaction methodsFor: 'value' stamp: 'HernanWilkinson 9/12/2011 12:25'!
 value 
 
 	self subclassResponsibility ! !
-
-
-!AccountTransaction methodsFor: 'initialization' stamp: 'F 11/7/2022 19:20:19'!
-register: aValue fromOriginator: anOriginator toBeneficiary: aBeneficiary   
-
-	^self subclassResponsibility ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -167,19 +171,6 @@ register: aValue on: account
 		
 	^ transaction! !
 
-!AccountTransaction class methodsFor: 'instance creation' stamp: 'F 11/7/2022 19:23:25'!
-registerAmount: anAmount withOriginator: anOriginator andBeneficiary: aBeneficiary   
-
-	| transaction |
-	
-
-	transaction := self register: anAmount fromOriginator: anOriginator toBeneficiary: aBeneficiary.
-	
-	aBeneficiary register: transaction.
-		
-	^ transaction
-	"""^self register: anAmount fromOriginator: anOriginator toBeneficiary: aBeneficiary . """! !
-
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #Deposit
@@ -188,15 +179,13 @@ AccountTransaction subclass: #Deposit
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Deposit methodsFor: 'initialization' stamp: 'F 11/7/2022 19:26:06'!
-initializeFor: aValue with: anOrigintor and: aBeneficiary
-	
-	originator := anOrigintor .
-	beneficiary := aBeneficiary .
+!Deposit methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:45'!
+initializeFor: aValue
+
 	value := aValue ! !
 
 
-!Deposit methodsFor: 'value' stamp: 'F 11/7/2022 18:42:11'!
+!Deposit methodsFor: 'value' stamp: 'AK 11/8/2022 21:10:38'!
 registerInBalance: aBalance
 	^ aBalance + value.! !
 
@@ -211,10 +200,10 @@ value
 Deposit class
 	instanceVariableNames: ''!
 
-!Deposit class methodsFor: 'instance creation' stamp: 'F 11/7/2022 19:25:01'!
-register: anAmount fromOriginator: anOriginator toBeneficiary: aBeneficiary
+!Deposit class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:38'!
+for: aValue
 
-	^ self new initializeFor: anAmount with: anOriginator and: aBeneficiary.! !
+	^ self new initializeFor: aValue ! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
@@ -224,33 +213,17 @@ AccountTransaction subclass: #Withdraw
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Withdraw methodsFor: 'initialization' stamp: 'F 11/7/2022 19:27:38'!
-initializeFor: aValue with: anOrigintor and: aBeneficiary
-	
-	originator := anOrigintor .
-	beneficiary := aBeneficiary .
-	value := aValue ! !
+!Withdraw methodsFor: 'initialization' stamp: 'AK 11/8/2022 20:55:11'!
+initializeFor: aValue
 
-!Withdraw methodsFor: 'initialization' stamp: 'F 11/7/2022 19:20:04'!
-register: aValue fromOriginator: anOriginator toBeneficiary: aBeneficiary   
-
-	| transaction |
-	
-	originator := anOriginator .
-	beneficiary  := aBeneficiary .
-	
-	transaction := self for: aValue.
-	
-	aBeneficiary register: transaction.
-		
-	^ transaction! !
+	value := aValue. ! !
 
 
-!Withdraw methodsFor: 'value' stamp: 'F 11/7/2022 18:42:30'!
+!Withdraw methodsFor: 'value' stamp: 'AK 11/8/2022 21:10:51'!
 registerInBalance: aBalance
-	^aBalance - value.! !
+	^ aBalance - value.! !
 
-!Withdraw methodsFor: 'value' stamp: 'F 11/7/2022 18:20:48'!
+!Withdraw methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:33'!
 value
 
 	^ value! !
@@ -261,7 +234,87 @@ value
 Withdraw class
 	instanceVariableNames: ''!
 
-!Withdraw class methodsFor: 'instance creation' stamp: 'F 11/7/2022 19:27:55'!
-register: anAmount fromOriginator: anOriginator toBeneficiary: aBeneficiary
+!Withdraw class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:33'!
+for: aValue
 
-	^ self new initializeFor: anAmount with: anOriginator and: aBeneficiary.! !
+	^ self new initializeFor: aValue ! !
+
+
+!classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Portfolio
+	instanceVariableNames: 'portfolioItems'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Portfolio methodsFor: 'initialize' stamp: 'AK 11/8/2022 21:17:02'!
+initialize
+	portfolioItems := OrderedCollection new.! !
+
+
+!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/8/2022 21:34:46'!
+balance
+	| auxBalance |
+
+	auxBalance := 0*peso.	
+
+	portfolioItems do: [ :anAccount | auxBalance := auxBalance + (anAccount balance)		].
+
+	^auxBalance .! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/8/2022 21:18:52'!
+portfolioItems
+	^ portfolioItems .! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/8/2022 21:18:24'!
+register: anAccount
+	
+	portfolioItems add: anAccount .! !
+
+
+!Portfolio methodsFor: 'testing' stamp: 'AK 11/8/2022 21:20:45'!
+isEmpty
+	^ portfolioItems isEmpty .! !
+
+
+!classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #ReceptiveAccount
+	instanceVariableNames: 'transactions balance'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!ReceptiveAccount methodsFor: 'initialization' stamp: 'AK 11/8/2022 20:45:40'!
+initialize
+
+	transactions := OrderedCollection new.
+	balance := 0*peso.! !
+
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'AK 11/8/2022 21:37:08'!
+balance
+	| auxBalance |
+
+	auxBalance := 0*peso.	
+	
+	transactions do: [ :aTransaction | auxBalance := aTransaction registerInBalance: auxBalance		].
+
+	^auxBalance .! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
+hasRegistered: aTransaction
+
+	^ transactions includes: aTransaction 
+! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
+register: aTransaction
+
+	transactions add: aTransaction 
+! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
+transactions 
+
+	^ transactions copy! !
+

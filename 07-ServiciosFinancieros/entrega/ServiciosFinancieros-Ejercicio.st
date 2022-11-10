@@ -1,28 +1,39 @@
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #PortfolioTest
-	instanceVariableNames: 'portfolioA'
+	instanceVariableNames: 'portfolioA portfolioB portfolioC accountA accountB accountC accountD'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!PortfolioTest methodsFor: 'setUp' stamp: 'AK 11/8/2022 21:24:58'!
+!PortfolioTest methodsFor: 'tests' stamp: 'Ak 11/10/2022 00:04:13'!
 setUp
-	| accountA accountB |
 	
-	accountA := ReceptiveAccount new.
-	accountB := ReceptiveAccount new.
+	accountA := ReceptiveAccount new.	Withdraw register: 100*peso on: accountA.
 	
-	Withdraw register: 100*peso on: accountA.
-	Deposit register: 50*peso on: accountB .
+	accountB := ReceptiveAccount new.	Deposit register: 50*peso on: accountB.
 	
+	"""Portfolio with 1 account"""
 	portfolioA := Portfolio new.
 	portfolioA register: accountA.
+	"""Portfolio with 2 accounts"""
+	portfolioB := Portfolio new.
+	portfolioB register: accountA.
+	portfolioB register: accountB.
 	
+	"""Portfolio with 3 accounts"""
 	
+	accountC := ReceptiveAccount new.
+	Deposit register: 120*peso on: accountC.
+	Deposit register: 150*peso on: accountC.
+	accountD := ReceptiveAccount new.
+	Transfer fromOriginator: accountC toBeneficiary: accountD withValue: 50*peso.
 	
-	
+	portfolioC := Portfolio new.
+	portfolioC register: accountA.
+	portfolioC register: accountB.
+	portfolioC register: accountC.
+	portfolioC register: accountD.
 	! !
-
 
 !PortfolioTest methodsFor: 'tests' stamp: 'AK 11/8/2022 21:20:52'!
 test01InitializeNewPortfolioHasZeroTransactions
@@ -42,10 +53,38 @@ test02RegisterAnAccountInPortfolioIsNotEmpty
 	
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/8/2022 21:36:17'!
-test03PortfolioHasTheSameBalanceAsItsOnlyAccountRegistered
+!PortfolioTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:37:27'!
+test03PortfolioBalanceIsTheSameAsItsOnlyAccountRegistered
 
 	self assert: portfolioA balance equals: -100*peso.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:37:19'!
+test04PortfolioBalanceIsTheSameAsItsBothAccountsRegistered
+
+	self assert: portfolioB balance equals: -50*peso.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:44:19'!
+test05PortfolioBalanceIsTheSameAsItsMultipleAccountsRegistered
+
+	self assert: portfolioC balance equals: 220*peso.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'Ak 11/10/2022 00:03:37'!
+test06PortfolioHasTheSameTransactionsAsItsOnlyAccount
+	
+	self assert: portfolioA transactions equals: accountA transactions.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'Ak 11/10/2022 00:07:44'!
+test07PortfolioHasTheSameTransactionsAsItsMultipleAccounts
+	
+	| allAccountsTransactions |
+	
+	allAccountsTransactions := OrderedCollection new.
+	allAccountsTransactions addAll: accountA transactions .
+	allAccountsTransactions addAll: accountB transactions .
+	allAccountsTransactions addAll: accountC transactions .
+	allAccountsTransactions addAll: accountD transactions .
+	
+	self assert: portfolioC transactions equals: allAccountsTransactions .! !
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
@@ -139,6 +178,87 @@ test07AccountKnowsItsTransactions
 ! !
 
 
+!classDefinition: #TransferTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #TransferTest
+	instanceVariableNames: 'accountA accountB'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TransferTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 22:48:30'!
+setUp
+	
+	accountA := ReceptiveAccount new.
+	accountB := ReceptiveAccount new.! !
+
+!TransferTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:09:09'!
+test01TransferingAmountLeavesBalanceDifferentFromZeroInBothAccounts
+
+	Transfer fromOriginator: accountA toBeneficiary: accountB withValue: 50*peso.
+	
+	self deny: accountA balanceIsZero.
+	self deny: accountB balanceIsZero.
+! !
+
+!TransferTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:18:35'!
+test02Transfer50PesoUpdatesBalanceInBothAccounts
+
+	Transfer fromOriginator: accountA toBeneficiary: accountB withValue: 50*peso.
+	
+	self assert: accountA balance equals: -50*peso.
+	self assert: accountB balance equals: 50*peso.
+! !
+
+!TransferTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:17:55'!
+test03Transfer0PesoShouldRaiseError
+	
+	self should: [ Transfer fromOriginator: accountA toBeneficiary: accountB withValue: 0*peso. ]
+       		raise: Error
+	        		withExceptionDo: [ :anError |
+            				self assert: Transfer invalidTransferAmountErrorDescription equals: anError messageText ].
+! !
+
+!TransferTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:18:20'!
+test04TransferNegativeAmountShouldRaiseError
+	
+	self should: [ Transfer fromOriginator: accountA toBeneficiary: accountB withValue: -100*peso. ]
+       		raise: Error
+	        		withExceptionDo: [ :anError |
+            				self assert: Transfer invalidTransferAmountErrorDescription equals: anError messageText ].
+! !
+
+!TransferTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:20:46'!
+test05TransferMultipleTimesInOneWayUpdatesBalanceCorrectlyInBothAccounts
+
+	Transfer fromOriginator: accountA toBeneficiary: accountB withValue: 50*peso.
+	Transfer fromOriginator: accountA toBeneficiary: accountB withValue: 200*peso.
+	
+	self assert: accountA balance equals: -250*peso.
+	self assert: accountB balance equals: 250*peso.
+! !
+
+!TransferTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:22:05'!
+test06TransferMultipleTimesInBothWaysUpdatesBalanceCorrectlyInBothAccounts
+
+	Transfer fromOriginator: accountA toBeneficiary: accountB withValue: 25*peso.
+	Transfer fromOriginator: accountB toBeneficiary: accountA withValue: 100*peso.
+	Transfer fromOriginator: accountB toBeneficiary: accountA withValue: 50*peso.
+	
+	self assert: accountA balance equals: 125*peso.
+	self assert: accountB balance equals: -125*peso.
+! !
+
+!TransferTest methodsFor: 'tests' stamp: 'Ak 11/9/2022 23:26:56'!
+test07TransferBeneficiaryAccountIsTheSameAsOriginatorAccountShouldRaiseError
+	
+	self should: [ Transfer fromOriginator: accountA toBeneficiary: accountA withValue: 100*peso. ]
+       		raise: Error
+	        		withExceptionDo: [ :anError |
+            				self assert: Transfer beneficiaryAccountIsTheSameAsOriginatorAccountErrorDescription equals: anError messageText ].
+
+! !
+
+
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
 	instanceVariableNames: ''
@@ -161,14 +281,15 @@ value
 AccountTransaction class
 	instanceVariableNames: ''!
 
-!AccountTransaction class methodsFor: 'instance creation' stamp: 'NR 10/17/2019 03:22:00'!
+!AccountTransaction class methodsFor: 'instance creation' stamp: 'Ak 11/9/2022 22:19:49'!
 register: aValue on: account
 
 	| transaction |
 	
 	transaction := self for: aValue.
+	
 	account register: transaction.
-		
+	
 	^ transaction! !
 
 
@@ -252,24 +373,34 @@ initialize
 	portfolioItems := OrderedCollection new.! !
 
 
-!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/8/2022 21:34:46'!
+!Portfolio methodsFor: 'main protocol' stamp: 'Ak 11/9/2022 23:28:13'!
 balance
 	| auxBalance |
-
+	
 	auxBalance := 0*peso.	
-
+	
 	portfolioItems do: [ :anAccount | auxBalance := auxBalance + (anAccount balance)		].
-
+	
 	^auxBalance .! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'AK 11/8/2022 21:18:52'!
 portfolioItems
 	^ portfolioItems .! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/8/2022 21:18:24'!
+!Portfolio methodsFor: 'main protocol' stamp: 'Ak 11/9/2022 23:28:19'!
 register: anAccount
-	
 	portfolioItems add: anAccount .! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'Ak 11/9/2022 23:58:13'!
+transactions
+
+	| portfolioTransactions |
+	
+	portfolioTransactions := OrderedCollection new.
+	
+	portfolioItems do: [ :aItem |  portfolioTransactions addAll: aItem transactions ].
+	
+	^ portfolioTransactions ! !
 
 
 !Portfolio methodsFor: 'testing' stamp: 'AK 11/8/2022 21:20:45'!
@@ -279,7 +410,7 @@ isEmpty
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #ReceptiveAccount
-	instanceVariableNames: 'transactions balance'
+	instanceVariableNames: 'transactions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -289,6 +420,11 @@ initialize
 
 	transactions := OrderedCollection new.
 	balance := 0*peso.! !
+
+
+!ReceptiveAccount methodsFor: 'testing' stamp: 'Ak 11/9/2022 23:12:42'!
+balanceIsZero
+	^ self balance = (0*peso).! !
 
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'AK 11/8/2022 21:37:08'!
@@ -307,10 +443,10 @@ hasRegistered: aTransaction
 	^ transactions includes: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'Ak 11/9/2022 22:38:22'!
 register: aTransaction
 
-	transactions add: aTransaction 
+	transactions add: aTransaction.
 ! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
@@ -318,3 +454,53 @@ transactions
 
 	^ transactions copy! !
 
+
+!classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Transfer
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Transfer methodsFor: 'initialization' stamp: 'Ak 11/9/2022 22:44:07'!
+initializeWithOriginator: originatorAccount AndBeneficiary: beneficiaryAccount withValue: anAmount
+
+	| originatorWithdraw beneficiaryDeposit |
+
+	originatorWithdraw := Withdraw register: anAmount on: originatorAccount .
+	
+	beneficiaryDeposit := Deposit register: anAmount on: beneficiaryAccount .
+	
+	value := anAmount .
+	
+	^ self.
+	! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
+Transfer class
+	instanceVariableNames: ''!
+
+!Transfer class methodsFor: 'error descriptions' stamp: 'Ak 11/9/2022 23:24:58'!
+beneficiaryAccountIsTheSameAsOriginatorAccountErrorDescription
+
+	^ ' The beneficiary account is the same as the originator account!! '! !
+
+!Transfer class methodsFor: 'error descriptions' stamp: 'Ak 11/9/2022 23:25:02'!
+invalidTransferAmountErrorDescription
+	
+	^ ' Invalid transfer amount!! '.! !
+
+
+!Transfer class methodsFor: 'instance creation' stamp: 'Ak 11/9/2022 23:24:08'!
+fromOriginator: originatorAccount toBeneficiary: beneficiaryAccount withValue: anAmount
+
+	(anAmount  <= (0*peso)) ifTrue: [self error: self invalidTransferAmountErrorDescription].
+	(originatorAccount isEqualTo: beneficiaryAccount) ifTrue: [self error: self beneficiaryAccountIsTheSameAsOriginatorAccountErrorDescription].
+	
+	^self new initializeWithOriginator: originatorAccount AndBeneficiary: beneficiaryAccount withValue: anAmount.
+	
+	
+
+	! !

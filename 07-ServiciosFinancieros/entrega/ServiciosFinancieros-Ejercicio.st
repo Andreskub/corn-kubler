@@ -1,27 +1,27 @@
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #PortfolioTest
-	instanceVariableNames: 'portfolioA portfolioB portfolioC accountA accountB accountC accountD'
+	instanceVariableNames: 'portfolioA portfolioB portfolioC portfolioD accountA accountB accountC accountD transactionA'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!PortfolioTest methodsFor: 'tests' stamp: 'Ak 11/10/2022 00:04:13'!
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/10/2022 18:38:00'!
 setUp
 	
-	accountA := ReceptiveAccount new.	Withdraw register: 100*peso on: accountA.
+	accountA := ReceptiveAccount new.	transactionA := Withdraw register: 100*peso on: accountA.
 	
 	accountB := ReceptiveAccount new.	Deposit register: 50*peso on: accountB.
 	
 	"""Portfolio with 1 account"""
 	portfolioA := Portfolio new.
 	portfolioA register: accountA.
+	
 	"""Portfolio with 2 accounts"""
 	portfolioB := Portfolio new.
 	portfolioB register: accountA.
 	portfolioB register: accountB.
 	
 	"""Portfolio with 3 accounts"""
-	
 	accountC := ReceptiveAccount new.
 	Deposit register: 120*peso on: accountC.
 	Deposit register: 150*peso on: accountC.
@@ -33,6 +33,12 @@ setUp
 	portfolioC register: accountB.
 	portfolioC register: accountC.
 	portfolioC register: accountD.
+	
+	"""Portfolio D has Portfolio B"""
+	portfolioD := Portfolio new.
+	portfolioD register: accountC.
+	portfolioD register: portfolioB.
+	
 	! !
 
 !PortfolioTest methodsFor: 'tests' stamp: 'AK 11/8/2022 21:20:52'!
@@ -85,6 +91,107 @@ test07PortfolioHasTheSameTransactionsAsItsMultipleAccounts
 	allAccountsTransactions addAll: accountD transactions .
 	
 	self assert: portfolioC transactions equals: allAccountsTransactions .! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/10/2022 18:14:03'!
+test08TransactionDoesNotExistInPortfolio
+	
+	| emptyPortfolio account transaction |
+	
+	emptyPortfolio := Portfolio new.
+	
+	account := ReceptiveAccount new.
+	transaction := Withdraw register: 100*peso on: account.
+	
+	self deny: (emptyPortfolio hasRegistered: transaction).
+	
+	
+	
+	
+! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/10/2022 18:16:25'!
+test09TransactionExistsInPortfolio
+	
+	self assert: (portfolioA hasRegistered: transactionA ).
+	
+	
+	
+	
+! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/10/2022 18:24:49'!
+test10InvalidTransactionDoesNotExistsInPortfolioShouldRaiseError
+		
+	self should: [ portfolioB hasRegistered: 'test'. ]
+       		raise: Error
+	        		withExceptionDo: [ :anError |
+            				self assert: Portfolio invalidTransactionTypeErrorDescription equals: anError messageText ].
+	
+	
+	
+	
+! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/10/2022 18:31:47'!
+test11PortfolioHasAnotherPortfolioWithTransaction
+		
+	self assert: (portfolioD hasRegistered: transactionA ).
+	
+	
+	
+	
+! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/10/2022 18:36:39'!
+test12PortfolioWithAnotherPortfolioHasCorrectBalance
+		
+	self assert: (portfolioD balance ) equals: 170*peso.
+	
+	
+	
+	
+! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/10/2022 18:57:35'!
+test13PortfolioCanNotRegisterAnAccountThatWasAlreadyRegistered
+		
+	
+	self should: [ portfolioA register: accountA . ]
+       		raise: Error
+	        		withExceptionDo: [ :anError |
+            				self assert: Portfolio itemAlreadyExistsInPortfolioErrorDescription equals: anError messageText ].
+	
+	
+	
+	
+! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/10/2022 19:11:30'!
+test14PortfolioCanNotRegisterItself
+		
+	
+	self should: [ portfolioA register: portfolioA . ]
+       		raise: Error
+	        		withExceptionDo: [ :anError |
+            				self assert: Portfolio canNotRegisterPortfolioInSamePortfolioErrorDescription equals: anError messageText ].
+	
+	
+	
+	
+! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'AK 11/10/2022 19:56:34'!
+test15CanNotRegisterAPostfolioAsAReceptiveAccount
+		
+	
+	self should: [ Deposit register: 50*peso on: portfolioB . ]
+       		raise: Error
+	        		withExceptionDo: [ :anError |
+            				self assert: AccountTransaction invalidInputAccountTypeErrorDescription equals: anError messageText ].
+	
+	
+	
+! !
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
@@ -281,14 +388,22 @@ value
 AccountTransaction class
 	instanceVariableNames: ''!
 
-!AccountTransaction class methodsFor: 'instance creation' stamp: 'Ak 11/9/2022 22:19:49'!
-register: aValue on: account
+!AccountTransaction class methodsFor: 'error descriptions' stamp: 'AK 11/10/2022 19:46:58'!
+invalidInputAccountTypeErrorDescription
+
+	^ ' Input is not an Account!! '! !
+
+
+!AccountTransaction class methodsFor: 'instance creation' stamp: 'AK 11/10/2022 19:50:48'!
+register: aValue on: anAccount	
 
 	| transaction |
 	
+	(anAccount isKindOf: ReceptiveAccount ) ifFalse: [ self error: self invalidInputAccountTypeErrorDescription].
+	
 	transaction := self for: aValue.
 	
-	account register: transaction.
+	anAccount register: transaction.
 	
 	^ transaction! !
 
@@ -383,13 +498,34 @@ balance
 	
 	^auxBalance .! !
 
+!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/10/2022 19:36:28'!
+hasItem: aItem
+	
+	((aItem isKindOf: ReceptiveAccount) | (aItem isKindOf: Portfolio) ) ifFalse: [ self error: self class invalidAccountTypeErrorDescription].
+	
+	^ portfolioItems anySatisfy: [ :portfolioItem |  
+		((aItem isKindOf: ReceptiveAccount) | (aItem isKindOf: Portfolio)) ifTrue: [^ portfolioItem = aItem ].
+		(portfolioItem isKindOf: Portfolio ) ifTrue: [^ portfolioItem hasItem: aItem ].
+	].! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/10/2022 19:18:57'!
+hasRegistered: aTransaction
+	
+	(aTransaction isKindOf: AccountTransaction) ifFalse: [ self error: self class invalidTransactionTypeErrorDescription].
+	
+	^ portfolioItems anySatisfy: [ :aItem | aItem hasRegistered: aTransaction ].! !
+
 !Portfolio methodsFor: 'main protocol' stamp: 'AK 11/8/2022 21:18:52'!
 portfolioItems
 	^ portfolioItems .! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'Ak 11/9/2022 23:28:19'!
-register: anAccount
-	portfolioItems add: anAccount .! !
+!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/10/2022 19:10:53'!
+register: aItem	
+	(self = aItem ) ifTrue: [ self error: self class canNotRegisterPortfolioInSamePortfolioErrorDescription].
+
+	(self hasItem: aItem) ifTrue: [self error: self class itemAlreadyExistsInPortfolioErrorDescription].
+
+	portfolioItems add: aItem .! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'Ak 11/9/2022 23:58:13'!
 transactions
@@ -407,6 +543,32 @@ transactions
 isEmpty
 	^ portfolioItems isEmpty .! !
 
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Ejercicio'!
+Portfolio class
+	instanceVariableNames: ''!
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'AK 11/10/2022 19:11:15'!
+canNotRegisterPortfolioInSamePortfolioErrorDescription
+
+	^ ' Portfolio can not register itself!! '.! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'AK 11/10/2022 18:46:36'!
+invalidAccountTypeErrorDescription
+
+	^ ' Input is not an Account!! '! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'AK 11/10/2022 18:23:31'!
+invalidTransactionTypeErrorDescription
+
+	^ ' Input is not a transaction!! '! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'AK 11/10/2022 18:57:47'!
+itemAlreadyExistsInPortfolioErrorDescription
+
+	^ ' The item is already registered in Portfolio!! '! !
+
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #ReceptiveAccount
@@ -415,11 +577,10 @@ Object subclass: #ReceptiveAccount
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!ReceptiveAccount methodsFor: 'initialization' stamp: 'AK 11/8/2022 20:45:40'!
+!ReceptiveAccount methodsFor: 'initialization' stamp: 'AK 11/10/2022 18:38:16'!
 initialize
 
-	transactions := OrderedCollection new.
-	balance := 0*peso.! !
+	transactions := OrderedCollection new.! !
 
 
 !ReceptiveAccount methodsFor: 'testing' stamp: 'Ak 11/9/2022 23:12:42'!

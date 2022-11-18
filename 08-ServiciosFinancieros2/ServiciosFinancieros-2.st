@@ -201,12 +201,12 @@ test07AccountKnowsItsTransactions
 
 !classDefinition: #ReportTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #ReportTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'accountMia accountJuan accountAngeles accountAndres portfolioFamilia portfolioHijos'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!ReportTest methodsFor: 'AccountSummary tests' stamp: 'f 11/16/2022 20:47:31'!
+!ReportTest methodsFor: 'accountSummary tests' stamp: 'AK 11/17/2022 23:42:12'!
 test01AccountSummaryBalanceFromEmptyAccountIsZero
 
 	|account accountSummaryReport|
@@ -215,9 +215,9 @@ test01AccountSummaryBalanceFromEmptyAccountIsZero
 	
 	accountSummaryReport := AccountSummaryReport for: account.
 	
-	self assert: accountSummaryReport equals: 'Balance = 0 * pesos'.! !
+	self assert: (accountSummaryReport reportAsString) equals: 'Balance = 0 * pesos'.! !
 
-!ReportTest methodsFor: 'AccountSummary tests' stamp: 'f 11/16/2022 21:51:06'!
+!ReportTest methodsFor: 'accountSummary tests' stamp: 'AK 11/17/2022 23:42:32'!
 test02AccountSummaryReportWithAccountWithOneDepositHasDepositAndBalance
 
 	|account accountSummaryReport|
@@ -228,11 +228,18 @@ test02AccountSummaryReportWithAccountWithOneDepositHasDepositAndBalance
 	
 	accountSummaryReport := AccountSummaryReport for: account.
 	
-	self assert: accountSummaryReport equals: 
+	self assert: (accountSummaryReport reportAsString) equals: 
 	('Depósito por 100 * pesos', String newLineString ,'Balance = 100 * pesos').! !
 
+!ReportTest methodsFor: 'accountSummary tests' stamp: 'F 11/18/2022 10:59:01'!
+test03AccountSummaryReportForEmptyStringRaisesError
+	self should: [ AccountSummaryReport for: ''. . ]
+               raise: Error
+                    withExceptionDo: [ :anError |
+                            self assert: Report invalidInputErrorDescription equals: anError messageText ].! !
 
-!ReportTest methodsFor: 'TransferNet tests' stamp: 'f 11/16/2022 23:10:59'!
+
+!ReportTest methodsFor: 'transferNet tests' stamp: 'f 11/16/2022 23:10:59'!
 test11TransferNetIsZeroWhenTheAccountDoesNotHaveTransfers
 	|account transferNet|
 	
@@ -242,7 +249,7 @@ test11TransferNetIsZeroWhenTheAccountDoesNotHaveTransfers
 	
 	self assert: transferNet equals: 0*peso.! !
 
-!ReportTest methodsFor: 'TransferNet tests' stamp: 'f 11/16/2022 23:11:08'!
+!ReportTest methodsFor: 'transferNet tests' stamp: 'f 11/16/2022 23:11:08'!
 test12TransferNetWithOneTransferHasCorrectBalance
 	|beneficiaryAccount originatorAccount transferNet|
 	
@@ -254,7 +261,7 @@ test12TransferNetWithOneTransferHasCorrectBalance
 	
 	self assert: transferNet equals: 100*peso.! !
 
-!ReportTest methodsFor: 'TransferNet tests' stamp: 'f 11/16/2022 23:11:16'!
+!ReportTest methodsFor: 'transferNet tests' stamp: 'f 11/16/2022 23:11:16'!
 test13TransferNetWithMultipleTransferHasCorrectBalance
 	|beneficiaryAccount originatorAccount transferNet|
 	
@@ -268,7 +275,7 @@ test13TransferNetWithMultipleTransferHasCorrectBalance
 	
 	self assert: transferNet equals: 50*peso.! !
 
-!ReportTest methodsFor: 'TransferNet tests' stamp: 'f 11/16/2022 23:11:24'!
+!ReportTest methodsFor: 'transferNet tests' stamp: 'f 11/16/2022 23:11:24'!
 test14TransferNetIsNotAffectedByDeposit
 	|account transferNet|
 	
@@ -280,7 +287,7 @@ test14TransferNetIsNotAffectedByDeposit
 	
 	self assert: transferNet equals: 0*peso.! !
 
-!ReportTest methodsFor: 'TransferNet tests' stamp: 'f 11/16/2022 23:11:31'!
+!ReportTest methodsFor: 'transferNet tests' stamp: 'f 11/16/2022 23:11:31'!
 test15TransferNetIsNotAffectedByWithdraw
 	|account transferNet|
 	
@@ -292,7 +299,7 @@ test15TransferNetIsNotAffectedByWithdraw
 	
 	self assert: transferNet equals: 0*peso.! !
 
-!ReportTest methodsFor: 'TransferNet tests' stamp: 'f 11/16/2022 23:11:41'!
+!ReportTest methodsFor: 'transferNet tests' stamp: 'f 11/16/2022 23:11:41'!
 test16TransferNetIsOnlyAffectedByTransfers
 	|beneficiaryAccount originatorAccount transferNet|
 	
@@ -308,8 +315,53 @@ test16TransferNetIsOnlyAffectedByTransfers
 	
 	self assert: transferNet equals: 50*peso.! !
 
+!ReportTest methodsFor: 'transferNet tests' stamp: 'F 11/18/2022 11:04:29'!
+test17TransferNetForEmptyStringRaisesError
 
-!ReportTest methodsFor: 'PortfolioTreePrinter tests' stamp: 'f 11/16/2022 23:13:04'!
+	self should: [ TransferNetReport for: ''. . ]
+               raise: Error
+                    withExceptionDo: [ :anError |
+                            self assert: Report invalidInputErrorDescription equals: anError messageText ].! !
+
+
+!ReportTest methodsFor: 'portfolioTreePrinterDetailed tests' stamp: 'F 11/18/2022 10:05:07'!
+test31ComplexPortfolioTreePrinterDetailedreportHasTheCorrectIdentation
+
+	Deposit register: 100 * peso on: accountMia .
+	Withdraw register: 50 * peso on: accountMia.
+	Deposit register: 200 * peso on: accountJuan .
+	Withdraw register: 50 * peso on: accountJuan .
+	Transfer amount: 20 * peso from: accountAngeles to: accountAndres .
+	
+	self assert: (PortfolioTreePrinterDetailedReport for: portfolioFamilia ) 
+	equals: 
+'Portfolio de la familia
+    Cuenta mia
+        Depósito por 100 * pesos
+        Extracción por 50 * pesos
+        Balance = 50 * pesos
+    Portfolio de hijos
+        Cuenta de Juan
+            Depósito por 200 * pesos
+            Extracción por 50 * pesos
+            Balance = 150 * pesos
+        Cuenta de Angeles
+            Salida por transferencia de 20 * pesos
+            Balance = -20 * pesos
+    Balance = 130 * pesos
+Balance = 180 * pesos'.
+! !
+
+!ReportTest methodsFor: 'portfolioTreePrinterDetailed tests' stamp: 'F 11/18/2022 11:06:03'!
+test32PortfolioTreePrinterDetailedForEmptyStringRaisesError
+
+	self should: [ PortfolioTreePrinterDetailedReport for: ''. . ]
+               raise: Error
+                    withExceptionDo: [ :anError |
+                            self assert: Report invalidInputErrorDescription equals: anError messageText ].! !
+
+
+!ReportTest methodsFor: 'portfolioTreePrinter tests' stamp: 'f 11/16/2022 23:13:04'!
 test21AccountHasTheCorrectName
 
 	|account|
@@ -318,7 +370,7 @@ test21AccountHasTheCorrectName
 	
 	self assert: account name equals: 'Cuenta de Franco'.! !
 
-!ReportTest methodsFor: 'PortfolioTreePrinter tests' stamp: 'f 11/16/2022 23:14:21'!
+!ReportTest methodsFor: 'portfolioTreePrinter tests' stamp: 'f 11/16/2022 23:14:21'!
 test22PortfolioHasTheCorrectName
 
 	|account portfolio|
@@ -329,8 +381,8 @@ test22PortfolioHasTheCorrectName
 	
 	self assert: portfolio name equals: 'Portfolio de Franco'.! !
 
-!ReportTest methodsFor: 'PortfolioTreePrinter tests' stamp: 'f 11/16/2022 23:15:38'!
-test23InitializeReceptiveAccountHasEmptyNamemptyName
+!ReportTest methodsFor: 'portfolioTreePrinter tests' stamp: 'AK 11/18/2022 00:34:39'!
+test23InitializeReceptiveAccountHasEmptyName
 
 	|account |
 	
@@ -338,27 +390,58 @@ test23InitializeReceptiveAccountHasEmptyNamemptyName
 	
 	self assert: account name equals: ''.! !
 
-!ReportTest methodsFor: 'PortfolioTreePrinter tests' stamp: 'f 11/16/2022 20:32:54'!
-test24
+!ReportTest methodsFor: 'portfolioTreePrinter tests' stamp: 'AK 11/18/2022 00:34:20'!
+test24InitializePortfolioHasEmptyName
 
 	|portfolio|
-	
 	portfolio := Portfolio new.
 	
 	self assert: portfolio name equals: ''.! !
 
-!ReportTest methodsFor: 'PortfolioTreePrinter tests' stamp: 'f 11/17/2022 00:00:27'!
-test25
-
-	|portfolio1 portfolio2 account1 account2 account3 |
-	account1:= ReceptiveAccount named: 'Cuenta mia'.
-	account2:= ReceptiveAccount named: 'Cuenta de Juan'.
-	account3:= ReceptiveAccount named: 'Cuenta de Angeles'.
-	portfolio2:= Portfolio named: 'Portfolio de hijos' with: account3 with: account2.
-	portfolio1 := Portfolio named: 'Portfolio de la familia'  with: account1  with: portfolio2.
-
+!ReportTest methodsFor: 'portfolioTreePrinter tests' stamp: 'F 11/18/2022 10:07:03'!
+test25SimplePortfolioTreePrinterReportHasTheCorrectIdentation
 	
-	self assert: (PortfolioTreePrinterReport for: portfolio1) equals: OrderedCollection new .! !
+	self assert: (PortfolioTreePrinterReport for: portfolioFamilia ) 
+	equals: 
+'Portfolio de la familia
+    Cuenta mia
+    Portfolio de hijos
+        Cuenta de Juan
+        Cuenta de Angeles'.! !
+
+!ReportTest methodsFor: 'portfolioTreePrinter tests' stamp: 'F 11/18/2022 10:05:26'!
+test26ComplexPortfolioTreePrinterReportHasTheCorrectIdentation
+	
+	portfolioFamilia add: accountAndres .
+	
+	self assert: (PortfolioTreePrinterReport for: portfolioFamilia) 
+	equals: 
+'Portfolio de la familia
+    Cuenta mia
+    Portfolio de hijos
+        Cuenta de Juan
+        Cuenta de Angeles
+    Cuenta de Andres'.! !
+
+!ReportTest methodsFor: 'portfolioTreePrinter tests' stamp: 'F 11/18/2022 11:05:23'!
+test27PortfolioTreePrinterForEmptyStringRaisesError
+
+	self should: [ PortfolioTreePrinterReport for: ''. . ]
+               raise: Error
+                    withExceptionDo: [ :anError |
+                            self assert: Report invalidInputErrorDescription equals: anError messageText ].! !
+
+
+!ReportTest methodsFor: 'setUp' stamp: 'AK 11/18/2022 00:31:27'!
+setUp
+
+	accountMia := ReceptiveAccount named: 'Cuenta mia'.
+	accountJuan := ReceptiveAccount named: 'Cuenta de Juan'.
+	accountAngeles := ReceptiveAccount named: 'Cuenta de Angeles'.
+	accountAndres := ReceptiveAccount named: 'Cuenta de Andres'.
+	
+	portfolioHijos := Portfolio named: 'Portfolio de hijos' with: accountJuan with: accountAngeles .
+	portfolioFamilia := Portfolio named: 'Portfolio de la familia'  with: accountMia  with: portfolioHijos .! !
 
 
 !classDefinition: #TransferTest category: 'ServiciosFinancieros-Solucion'!
@@ -541,21 +624,41 @@ name
 
 	^name copy.! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'f 11/17/2022 00:00:59'!
+!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/17/2022 22:56:57'!
 processTree
 
-	|portfolioTree |
+	|portfolioTree auxCollection|
 	
 	portfolioTree := OrderedCollection new.
-
-	
-	portfolioTree addLast:( self name).
 	
 	self accounts do:[ :anAccount | 
-		portfolioTree addAllLast:  (anAccount processTree).
+		auxCollection := (anAccount processTree).
+		auxCollection do: [ :aName |
+				portfolioTree addLast: ('    ',aName).
+			].
 		].
 	
+	portfolioTree addFirst: (self name).
+	
+	^portfolioTree 
+	! !
 
+!Portfolio methodsFor: 'main protocol' stamp: 'AK 11/18/2022 00:16:24'!
+processTreeDetailed
+
+	|portfolioTree auxCollection |
+	
+	portfolioTree := OrderedCollection new.
+	
+	self accounts do:[ :anAccount | 
+		auxCollection := (anAccount processTreeDetailed ).
+		auxCollection do: [ :aName |
+				portfolioTree addLast: ('    ',aName).
+			].
+		].
+	
+	portfolioTree addFirst: (self name).
+	portfolioTree addLast: ('Balance = ', (self balance) asString ).
 	
 	^portfolioTree 
 	! !
@@ -654,10 +757,26 @@ name
 
 	^name copy.! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'f 11/16/2022 23:00:55'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'AK 11/17/2022 22:37:16'!
 processTree
 
-	^self name.! !
+	^{self name}.! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'AK 11/17/2022 23:47:57'!
+processTreeDetailed
+
+	| treeIntenalCollection accountSummaryReport |
+	
+	treeIntenalCollection := OrderedCollection new.
+	treeIntenalCollection addLast: (self name).
+
+	accountSummaryReport := AccountSummaryReport for: self.
+	
+	(accountSummaryReport report) do: [ :aLine | 
+			treeIntenalCollection addLast: ('    ',aLine ).
+		].
+	
+	^ treeIntenalCollection.! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
@@ -907,6 +1026,16 @@ Object subclass: #Report
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
+!Report methodsFor: 'main protocol' stamp: 'AK 11/17/2022 23:06:11'!
+linesAsString: aCollectionOfLines
+
+	^aCollectionOfLines collect: [ :aLine | aLine ] 
+	andFold: [ :acumulatedOutput :newLine | 
+		acumulatedOutput , String newLineString , newLine
+		] 
+	ifEmpty: [''].! !
+
+
 !Report methodsFor: 'initialization' stamp: 'f 11/16/2022 19:12:16'!
 initializeWith: anAccount
 	
@@ -918,44 +1047,51 @@ initializeWith: anAccount
 Report class
 	instanceVariableNames: ''!
 
-!Report class methodsFor: 'instance creation' stamp: 'f 11/16/2022 19:11:28'!
+!Report class methodsFor: 'instance creation' stamp: 'F 11/18/2022 10:54:38'!
 for: anAccount
-	
+	(anAccount isKindOf: Account) ifFalse: [self error: self invalidInputErrorDescription].
+	 
 	^ self new initializeWith: anAccount.! !
+
+
+!Report class methodsFor: 'error descriptions' stamp: 'F 11/18/2022 10:53:22'!
+invalidInputErrorDescription
+	^'Reports are only for receptive accounts and portfolios'! !
 
 
 !classDefinition: #AccountSummaryReport category: 'ServiciosFinancieros-Solucion'!
 Report subclass: #AccountSummaryReport
-	instanceVariableNames: ''
+	instanceVariableNames: 'report'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!AccountSummaryReport methodsFor: 'initialization' stamp: 'f 11/16/2022 20:39:16'!
+!AccountSummaryReport methodsFor: 'initialization' stamp: 'F 11/18/2022 10:46:15'!
 initializeWith: anAccount
-	
-	|report|
-	
-	report := OrderedCollection new.
-	
-	anAccount transactions do:[ :aTransaction | 
-		report addLast: (aTransaction processLineFor: self).
-		].
-	report addLast: ('Balance = ' , anAccount balance asString). 
-	
-	^self linesAsString: report.
+	report := OrderedCollection new.	
+	self addInformationToReportCollectionFrom: anAccount .
+
 	! !
 
 
-!AccountSummaryReport methodsFor: 'main protocol' stamp: 'f 11/16/2022 20:43:07'!
-linesAsString: aCollectionOfLines
+!AccountSummaryReport methodsFor: 'main protocol' stamp: 'AK 11/17/2022 23:37:27'!
+report
+	^ report copy.! !
 
-	^aCollectionOfLines collect: [ :aLine | aLine ] 
-	andFold: [ :acumulatedOutput :newLine | 
-		acumulatedOutput , String newLineString , newLine
-		] 
-	ifEmpty: [''].! !
+!AccountSummaryReport methodsFor: 'main protocol' stamp: 'AK 11/17/2022 23:41:11'!
+reportAsString
+	^ self linesAsString: report.! !
 
+
+!AccountSummaryReport methodsFor: 'private' stamp: 'F 11/18/2022 10:46:15'!
+addInformationToReportCollectionFrom: anAccount
+	
+	anAccount transactions do:[ :aTransaction | 
+	report addLast: (aTransaction processLineFor: self).
+	].
+
+	report addLast: ('Balance = ' , anAccount balance asString). 
+! !
 
 !AccountSummaryReport methodsFor: 'private' stamp: 'f 11/15/2022 21:02:24'!
 processDeposit: aDeposit
@@ -978,6 +1114,38 @@ processWithdraw: aWithdraw
 	^'Extracción por ', aWithdraw value asString.! !
 
 
+!classDefinition: #PortfolioTreePrinterDetailedReport category: 'ServiciosFinancieros-Solucion'!
+Report subclass: #PortfolioTreePrinterDetailedReport
+	instanceVariableNames: 'tree'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!PortfolioTreePrinterDetailedReport methodsFor: 'private' stamp: 'F 11/18/2022 10:47:12'!
+addInformationToTreeCollectionFrom: anAccount
+
+	| auxCollection |
+	
+	anAccount accounts do:[ :anAccount1 | 
+		auxCollection := (anAccount1 processTreeDetailed).
+		auxCollection do: [ :aName |
+				tree addLast: ('    ',aName).
+			].
+		].
+	
+	tree addFirst:(anAccount name).
+	tree addLast: ('Balance = ', (anAccount balance) asString ).! !
+
+
+!PortfolioTreePrinterDetailedReport methodsFor: 'initialization' stamp: 'F 11/18/2022 10:47:12'!
+initializeWith: anAccount
+	tree := OrderedCollection new.
+	self addInformationToTreeCollectionFrom: anAccount.
+	
+	^self linesAsString: tree.
+	! !
+
+
 !classDefinition: #PortfolioTreePrinterReport category: 'ServiciosFinancieros-Solucion'!
 Report subclass: #PortfolioTreePrinterReport
 	instanceVariableNames: 'tree'
@@ -985,28 +1153,30 @@ Report subclass: #PortfolioTreePrinterReport
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!PortfolioTreePrinterReport methodsFor: 'initialization' stamp: 'f 11/16/2022 23:42:49'!
-initializeWith: anAccount
+!PortfolioTreePrinterReport methodsFor: 'private' stamp: 'F 11/18/2022 10:47:12'!
+addInformationToTreeCollectionFrom: anAccount
 
-	tree := OrderedCollection new.
-	
-	tree addLast:(anAccount name).
+	| auxCollection |
+
 	anAccount accounts do:[ :anAccount1 | 
-		tree addAllLast:(anAccount1 processTree).
+		auxCollection := (anAccount1 processTree).
+		auxCollection do: [ :aName |
+				tree addLast: ('    ',aName).
+			].
 		].
 	
-	^tree.
+	tree addFirst:(anAccount name).
+	
+! !
+
+
+!PortfolioTreePrinterReport methodsFor: 'initialization' stamp: 'F 11/18/2022 10:47:12'!
+initializeWith: anAccount
+	tree := OrderedCollection new.
+	self addInformationToTreeCollectionFrom: anAccount.
+	
+	^self linesAsString: tree.
 	! !
-
-
-!PortfolioTreePrinterReport methodsFor: 'main protocol' stamp: 'f 11/16/2022 22:29:55'!
-linesAsString: aCollectionOfLines
-
-	^aCollectionOfLines collect: [ :aLine | aLine ] 
-	andFold: [ :acumulatedOutput :newLine | 
-		acumulatedOutput , String newLineString , newLine
-		] 
-	ifEmpty: [''].! !
 
 
 !classDefinition: #TransferNetReport category: 'ServiciosFinancieros-Solucion'!
@@ -1016,16 +1186,12 @@ Report subclass: #TransferNetReport
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!TransferNetReport methodsFor: 'initialization' stamp: 'f 11/16/2022 19:25:08'!
+!TransferNetReport methodsFor: 'initialization' stamp: 'F 11/18/2022 11:02:59'!
 initializeWith: anAccount
-	
 	transferNetBalance := 0*peso.
+	self setTransferBalanceFrom: anAccount .
 	
-	anAccount transactions do: [ :aTransaction |
-		transferNetBalance := aTransaction processLineFor: self
-		].
-	
-	^transferNetBalance! !
+	^transferNetBalance.! !
 
 
 !TransferNetReport methodsFor: 'private' stamp: 'f 11/16/2022 19:25:17'!
@@ -1052,6 +1218,13 @@ processWithdraw: aWithdraw
 
 	^transferNetBalance.
 ! !
+
+!TransferNetReport methodsFor: 'private' stamp: 'F 11/18/2022 11:02:42'!
+setTransferBalanceFrom: anAccount
+
+	anAccount transactions do: [ :aTransaction |
+	transferNetBalance := aTransaction processLineFor: self
+	].! !
 
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Solucion'!
